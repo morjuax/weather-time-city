@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const momentTz = require('moment-timezone');
 const request = require('request');
+const path = require('path');
 // import citys from './service/init_citys.service'/
 const citys = require('./service/init_citys.service');
 const {promisify} = require('util');
@@ -86,13 +87,17 @@ app.get('/api/info/city/:city/', (req, res) => {
         });
     })();
 
-
-    // console.log(latitude, longitude);
-    // request(`https://api.darksky.net/forecast/e2af05dcb1b168c821fca2997baf39a8/${latitude},${longitude}`, function (error, response, body) {
-    //     res.json(body);
-    // });
-
 });
+
+if (process.env.NODE_ENV === 'production') {
+    // Serve any static files
+    app.use(express.static(path.join(__dirname, 'client/build')));
+
+    // Handle React routing, return all requests to React app
+    app.get('*', function(req, res) {
+        res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+    });
+}
 
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
