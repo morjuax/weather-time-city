@@ -2,8 +2,6 @@ import React, {Component} from 'react';
 // import logo from './logo.svg';
 import './App.css';
 
-// const momentTz = require('moment-timezone/builds/moment-timezone-with-data.min');
-
 class App extends Component {
     state = {
         response: '',
