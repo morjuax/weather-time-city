@@ -12,7 +12,7 @@ const url = 'https://api.darksky.net/forecast/e2af05dcb1b168c821fca2997baf39a8/'
 const app = express();
 const port = process.env.PORT || 5000;
 
-const redis_url = process.env.REDIS_URL || 'http://localhost::6379';
+const redis_url = process.env.REDIS_URL || '127.0.0.1:6379';
 
 
 // Redis
