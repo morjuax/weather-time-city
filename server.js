@@ -12,11 +12,12 @@ const url = 'https://api.darksky.net/forecast/e2af05dcb1b168c821fca2997baf39a8/'
 const app = express();
 const port = process.env.PORT || 5000;
 
-// const redis_url = process.env.REDIS_URL || '//127.0.0.1:6379';
+const redis_url = process.env.REDIS_URL || '//127.0.0.1:6379';
 
 // Redis
 let redis = require('redis');
-let clientRedis = redis.createClient('6379', process.env.REDIS_URL);
+let clientRedis = redis.createClient(redis_url);
+console.log(redis_url);
 clientRedis.on('connect', function () {
     console.log('Redis client connected');
 });
