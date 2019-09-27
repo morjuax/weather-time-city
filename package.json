@@ -9,14 +9,15 @@
     "moment-timezone": "^0.5.26",
     "redis": "^2.8.0",
     "request": "^2.88.0",
+    "request-promise": "^4.2.4",
     "util": "^0.12.1"
   },
   "scripts": {
     "client": "cd client && yarn start",
-    "server": "nodemon server.js",
+    "server": "nodemon server server.js",
     "dev": "concurrently --kill-others-on-fail \"yarn server\" \"yarn client\"",
     "dev:server": "cd client && yarn build && cd .. && yarn start",
-    "start": "node server.js",
+    "start": "node server server.js",
     "heroku-postbuild": "cd client && npm install && npm install --only=dev --no-shrinkwrap && npm run build"
   },
   "devDependencies": {

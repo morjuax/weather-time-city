@@ -16,45 +16,47 @@ class App extends Component {
     };
     citys = ['cl', 'ch', 'nz', 'au', 'uk', 'usa'];
 
-    componentDidMount() {
+    async componentDidMount() {
 
-        this.saveCitys().then(res => console.log(res))
-            .catch(err => console.log(err));
+        await this.saveCitys();
         // cl
-        this.citys.forEach((item) => {
-            this.callApi(item)
-                .then((res) => {
-                    //this.setState({response: JSON.stringify(res.currently)})
-                })
-                .catch(err => console.log(err));
-        });
-
+        this.getAllCity();
     };
 
-    callApi = async (city) => {
-        // const response = await fetch('/api/hello');
-        const response = await fetch(`/api/info/city/${city}`);
-        // console.log(this.citys.cl);
-        const body = await response.json();
-        if (response.status !== 200) throw Error(body.message);
+    getAllCity = () => {
+        this.citys.forEach(async (item) => {
+                let response = await this.getInfoCity(item);
+                response = await response.json();
 
-        let city_name = `city_${city}`;
-        this.setState({
-            [city_name]: {
-                time: body.time_format,
-                temperature: body.temperature
+                while (response.state === 0) {
+                    response = await this.getInfoCity(item);
+                    response = await response.json();
+                }
+                let body = response.data;
+
+                let city_name = `city_${item}`;
+                this.setState({
+                    [city_name]: {
+                        time: body.time_format,
+                        temperature: body.temperature
+                    }
+                });
             }
-        });
-        return body;
+        );
     };
 
-    saveCitys = async () => {
-        await fetch(`/save/citys`, {
+    getInfoCity = (city) => {
+        return fetch(`/api/info/city/${city}`);
+    };
+
+    saveCitys = () => {
+        return fetch(`/save/citys`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-        });
+        }).then(res => console.log(res))
+            .catch(err => console.log(err));
     };
 
     render() {
