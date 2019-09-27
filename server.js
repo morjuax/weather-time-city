@@ -1,7 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const momentTz = require('moment-timezone');
-const request = require('request');
+// const request = require('request');
 const rp = require('request-promise');
 const path = require('path');
 // import citys from './service/init_citys.service'/
@@ -12,9 +12,11 @@ const url = 'https://api.darksky.net/forecast/e2af05dcb1b168c821fca2997baf39a8/'
 const app = express();
 const port = process.env.PORT || 5000;
 
+const redis_url = process.env.REDIS_URL || 'http://localhost::6379';
+
 
 // Redis
-let redis = require('redis');
+let redis = require('redis').createClient(redis_url);
 let clientRedis = redis.createClient();
 clientRedis.on('connect', function () {
     console.log('Redis client connected');
