@@ -1,4 +1,4 @@
-let citysService = [
+const citysService = [
     {
         latitude: -33.4372, longitude: -70.6506, name: 'cl', descrip: 'Santiago'
     },

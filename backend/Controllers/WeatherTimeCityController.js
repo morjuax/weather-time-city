@@ -1,40 +1,15 @@
-const express = require('express');
-const bodyParser = require('body-parser');
+const controller = {};
+const citys = require('../../service/init_citys.service');
 const momentTz = require('moment-timezone');
-const request = require('request');
+const clientRedis = require('../redis');
 const rp = require('request-promise');
-const path = require('path');
-// import citys from './service/init_citys.service'/
-const citys = require('./service/init_citys.service');
 const {promisify} = require('util');
-const url = 'https://api.darksky.net/forecast/e2af05dcb1b168c821fca2997baf39a8/';
-
-const app = express();
-const port = process.env.PORT || 5000;
-
-const redis_url = process.env.REDIS_URL || '//127.0.0.1:6379';
-
-// Redis
-let redis = require('redis');
-let clientRedis = redis.createClient(redis_url);
-console.log(redis_url);
-clientRedis.on('connect', function () {
-    console.log('Redis client connected');
-});
-
-clientRedis.on('error', function (err) {
-    console.log('Something went wrong ' + err);
-});
 const getAsync = promisify(clientRedis.get).bind(clientRedis);
+const urlRestApi = process.env.URL_REST_API; //'https://api.darksky.net/forecast/e2af05dcb1b168c821fca2997baf39a8/';
 
 
-// Settings
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
 
-
-// Routes //
-app.post('/save/citys', (req, res) => {
+controller.save = (req, res) => {
     const timestamp = new Date().getTime();
     try {
         citys.forEach((item) => {
@@ -58,28 +33,20 @@ app.post('/save/citys', (req, res) => {
         });
         res.status(500).send({state: 0, message: 'An error occurred, please contact the administrator'});
     }
+};
 
-});
 
-
-app.get('/api/info/city/:city/', async (req, res) => {
-    const timestamp = new Date().getTime();
+controller.getInfoCity = async (req, res) => {
     let {city} = req.params;
-    let isError = Math.random() < 0.1;
-    if (isError) {
-        clientRedis.hmset('api.errors', {
-            [timestamp]: `The API Request Failed, city ${city}`
-        });
-        res.status(422).send({state: 0, message: 'How unfortunate! The API Request Failed'});
-    }
+
+    isValidRequest(clientRedis, res, city);
 
     try {
         // get long - lat to redis //
         let longitude = await getAsync(`longitude_${city}`);
         let latitude = await getAsync(`latitude_${city}`);
 
-        console.log(city, longitude, latitude);
-        let urlFull = `${url}${latitude},${longitude}?units=si`;
+        let urlFull = `${urlRestApi}${latitude},${longitude}?units=si`;
         let dw = await rp(urlFull);
         dw = JSON.parse(dw);
 
@@ -104,18 +71,17 @@ app.get('/api/info/city/:city/', async (req, res) => {
         });
         res.status(500).send({state: 0, message: 'An error occurred, please contact the administrator'});
     }
+};
 
-});
-
-if (process.env.NODE_ENV === 'production') {
-    // Serve any static files
-    app.use(express.static(path.join(__dirname, 'client/build')));
-
-    // Handle React routing, return all requests to React app
-    app.get('*', function (req, res) {
-        res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
-    });
+function isValidRequest(clientRedis, res, city) {
+    let timestamp = new Date().getTime();
+    let isError = Math.random() < 0.1;
+    if (isError) {
+        clientRedis.hmset('api.errors', {
+            [timestamp]: `The API Request Failed, city ${city}`
+        });
+        res.status(422).send({state: 0, message: 'How unfortunate! The API Request Failed'});
+    }
 }
 
-
-app.listen(port, () => console.log(`Listening on port ${port}`));
+module.exports = controller;
