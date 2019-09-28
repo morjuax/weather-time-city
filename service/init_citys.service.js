@@ -1,4 +1,4 @@
-const citysService = [
+module.exports = [
     {
         latitude: -33.4372, longitude: -70.6506, name: 'cl', descrip: 'Santiago'
     },
@@ -18,4 +18,4 @@ const citysService = [
         latitude: 33.7490005, longitude: -84.3879776, name: 'usa', descrip: 'Georgia'
     },
 ];
-module.exports = citysService;
+

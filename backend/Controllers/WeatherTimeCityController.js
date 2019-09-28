@@ -38,7 +38,7 @@ controller.save = (req, res) => {
 
 controller.getInfoCity = async (req, res) => {
     let {city} = req.params;
-
+    const timestamp = new Date().getTime();
     isValidRequest(clientRedis, res, city);
 
     try {

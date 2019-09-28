@@ -4,13 +4,7 @@ const WeatherTimeCityController = require('../Controllers/WeatherTimeCityControl
 
 
 router.get('/api/info/city/:city/', WeatherTimeCityController.getInfoCity);
-//
-// router.get('/:id', EmployeController.edit);
 
 router.post('/save/citys', WeatherTimeCityController.save);
-
-// router.put('/:id', EmployeController.update);
-//
-// router.delete('/:id', EmployeController.destroy);
 
 module.exports = router;

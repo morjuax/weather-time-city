@@ -12,6 +12,7 @@
     "redis": "^2.8.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
+    "socket.io": "^2.3.0",
     "util": "^0.12.1"
   },
   "scripts": {
