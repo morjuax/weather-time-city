@@ -32,16 +32,17 @@ class App extends Component {
             response = await this.getInfoCityAll();
             response = await response.json();
         }
-
-        response.data.forEach((item) => {
-                this.setState({
-                    [`city_${item.name}`]: {
-                        time: item.time_format,
-                        temperature: item.temperature
-                    }
-                });
-            }
-        );
+        if (response.data) {
+            response.data.forEach((item) => {
+                    this.setState({
+                        [`city_${item.name}`]: {
+                            time: item.time_format,
+                            temperature: item.temperature
+                        }
+                    });
+                }
+            );
+        }
     };
 
     getInfoCity = (city) => {
