@@ -37,6 +37,7 @@ The key to use an Express backend with a project created with `create-react-app`
 This tells Webpack development server to proxy our API requests to our API server, given that our Express server is running on **localhost:5000**
 
 ## Change file .env.example to .env
+Please add your KEY_REST_API the api.darksky.net in .env
 
 
 [Deployed app](https://test-node-ripley.herokuapp.com/)
