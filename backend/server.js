@@ -37,7 +37,7 @@ io.on('connection', socket => {
     setInterval(async () => {
          let data = await weatherTimeCityRepository.getInfoCityAll();
         socket.broadcast.emit('request_city', data)
-    }, 60 * 200);
+    }, 10000);
 
 });
 

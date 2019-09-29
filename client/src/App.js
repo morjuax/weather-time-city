@@ -65,6 +65,7 @@ class App extends Component {
     getSocket = () => {
         this.socket = io('/');
         this.socket.on('request_city', data => {
+            console.log("response socket success");
             //this.setState({data_socket: [data, ...this.state.data_socket]});
             data.forEach((item) => {
                 this.setState({
