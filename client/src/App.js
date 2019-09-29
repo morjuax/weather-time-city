@@ -15,32 +15,29 @@ class App extends Component {
         city_usa: {time: null, temperature: null},
         data_socket: []
     };
-    citys = ['cl', 'ch', 'nz', 'au', 'uk', 'usa'];
+
+    // citys = ['cl', 'ch', 'nz', 'au', 'uk', 'usa'];
 
     async componentDidMount() {
-
-        await this.saveCitys();
+        await this.saveCities();
         // cl
-        this.getAllCity();
-
+        await this.getRenderCities();
         this.getSocket();
     };
 
-    getAllCity = () => {
-        this.citys.forEach(async (item) => {
-                let response = await this.getInfoCity(item);
-                response = await response.json();
+    getRenderCities = async () => {
+        let response = await this.getInfoCityAll();
+        response = await response.json();
+        while (response.state === 2) { //emulate error
+            response = await this.getInfoCityAll();
+            response = await response.json();
+        }
 
-                while (response.state === 2) { //emulate error
-                    response = await this.getInfoCity(item);
-                    response = await response.json();
-                }
-                let body = response.data;
-                let city_name = `city_${item}`;
+        response.data.forEach((item) => {
                 this.setState({
-                    [city_name]: {
-                        time: body.time_format,
-                        temperature: body.temperature
+                    [`city_${item.name}`]: {
+                        time: item.time_format,
+                        temperature: item.temperature
                     }
                 });
             }
@@ -50,8 +47,11 @@ class App extends Component {
     getInfoCity = (city) => {
         return fetch(`/api/info/city/${city}`);
     };
+    getInfoCityAll = async () => {
+        return fetch(`/api/info/cities/`);
+    };
 
-    saveCitys = () => {
+    saveCities = () => {
         return fetch(`/save/citys`, {
             method: 'POST',
             headers: {
@@ -66,15 +66,17 @@ class App extends Component {
         this.socket = io('/');
         this.socket.on('request_city', data => {
             console.log("response socket success");
-
-            data.forEach((item) => {
-                this.setState({
-                    [`city_${item.city}` ]: {
-                        time: item.time_format,
-                        temperature: item.temperature
-                    }
+            if (data) {
+                data.forEach((item) => {
+                    this.setState({
+                        [`city_${item.name}`]: {
+                            time: item.time_format,
+                            temperature: item.temperature
+                        }
+                    });
                 });
-            });
+            }
+
 
         });
     };

@@ -36,13 +36,16 @@ if (process.env.NODE_ENV === 'production') {
 io.on('connection', socket => {
     //TODO: {code:403,error:'daily usage limit exceeded'}
     //TODO: WHAT ? 6 request for every 10 seconds
-    //TODO: 1min: 360 request :/
-
+    //TODO: 1min: 36 request :/
 
     setInterval(async () => {
-        let data = await weatherTimeCityRepository.getInfoCityAll();
+        let response = await weatherTimeCityRepository.saveUpdateData();
+        let data = "";
+        if (response.state) {
+            data = await weatherTimeCityRepository.getInfoCityAll();
+        }
         socket.broadcast.emit('request_city', data)
-    }, 60000); //1 min
+    }, 15000); //1 min 60000
 
 });
 

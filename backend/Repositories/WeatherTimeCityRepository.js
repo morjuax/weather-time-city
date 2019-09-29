@@ -4,32 +4,45 @@ const momentTz = require('moment-timezone');
 const clientRedis = require('../redis');
 const rp = require('request-promise');
 const {promisify} = require('util');
-// const getAsync = promisify(clientRedis.get).bind(clientRedis);
+const getAsync = promisify(clientRedis.get).bind(clientRedis);
 const getHAsync = promisify(clientRedis.hgetall).bind(clientRedis);
 const urlRestApi = `${process.env.URL_REST_API}${process.env.KEY_REST_API}/`;
 const cities = require('../../service/init_citys.service');
 const {forEach} = require('p-iteration');
 
-repository.save = () => {
-    const timestamp = new Date().getTime();
+repository.saveUpdateData = async () => {
+    let data = [];
     try {
-        cities.forEach((item) => {
-                clientRedis.hmset(`lat_log_${item.name}`, {
-                        lat: item.latitude,
-                        log: item.longitude
-                    }
-                );
-            }
-        );
 
-        return {state: 1, message: 'Save success'};
+        await forEach(cities, async (item) => {
+            let urlFull = `${urlRestApi}${item.latitude},${item.longitude}?units=si`;
+            let dw = await rp(urlFull); //request
+            dw = JSON.parse(dw);
+            let date_time = momentTz.tz(dw.currently.time * 1000, dw.timezone);
+            data.push({
+                name: item.name,
+                lat: item.latitude,
+                log: item.longitude,
+                timezone: dw.timezone,
+                time: dw.currently.time,
+                temperature: dw.currently.temperature.toFixed(1) + " C",
+                date_time: date_time,
+                time_format: date_time.format('H:m:s')
+            });
+        });
+
+        clientRedis.set(`weather_time_city`, JSON.stringify(data));
+
+        return {state: 1, message: 'Save Update success'};
     } catch (e) {
+        let timestamp = new Date().getTime();
         clientRedis.hmset('api.errors', {
             [timestamp]: `API Request fail, save city`
         });
         throw Error('An error occurred, save info city');
     }
-};
+}
+;
 
 repository.getInfoCity = async (city) => {
 
@@ -65,20 +78,11 @@ repository.getInfoCity = async (city) => {
 
 repository.getInfoCityAll = async () => {
 
-    let data = [];
     try {
-
-        await forEach(cities, async (city) => {
-            let response = await repository.getInfoCity(city.name);
-            response['city'] = city.name;
-            data.push(response);
-        });
-
+        return JSON.parse(await getAsync(`weather_time_city`));
     } catch (e) {
         throw Error('An error occurred, request getInfoCityAll, =>' + e.message);
     }
-
-    return data;
 };
 
 module.exports = repository;
