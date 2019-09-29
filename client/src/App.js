@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
-// import logo from './logo.svg';
 import './App.css';
+import io from 'socket.io-client';
 
 class App extends Component {
     state = {
@@ -13,6 +13,7 @@ class App extends Component {
         city_au: {time: null, temperature: null},
         city_uk: {time: null, temperature: null},
         city_usa: {time: null, temperature: null},
+        data_socket: []
     };
     citys = ['cl', 'ch', 'nz', 'au', 'uk', 'usa'];
 
@@ -21,6 +22,8 @@ class App extends Component {
         await this.saveCitys();
         // cl
         this.getAllCity();
+
+        this.getSocket();
     };
 
     getAllCity = () => {
@@ -28,12 +31,11 @@ class App extends Component {
                 let response = await this.getInfoCity(item);
                 response = await response.json();
 
-                while (response.state === 0) {
+                while (response.state === 2) { //emulate error
                     response = await this.getInfoCity(item);
                     response = await response.json();
                 }
                 let body = response.data;
-
                 let city_name = `city_${item}`;
                 this.setState({
                     [city_name]: {
@@ -58,6 +60,23 @@ class App extends Component {
         }).then((res) => {//console.log(res)
         })
             .catch(err => console.log(err));
+    };
+
+    getSocket = () => {
+        this.socket = io('/');
+        this.socket.on('request_city', data => {
+            console.log(data);
+            //this.setState({data_socket: [data, ...this.state.data_socket]});
+            data.forEach((item) => {
+                this.setState({
+                    [`city_${item.city}` ]: {
+                        time: item.time_format,
+                        temperature: item.temperature
+                    }
+                });
+            });
+
+        });
     };
 
     render() {
