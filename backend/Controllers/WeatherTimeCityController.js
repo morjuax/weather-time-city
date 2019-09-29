@@ -5,10 +5,15 @@ const clientRedis = require('../redis');
 
 
 controller.save = (req, res) => {
+    const {isNotFirstVisit} = req.body;
+    console.log(isNotFirstVisit);
     try {
         clientRedis.exists('init_app', async (err, reply) => {
             if (!reply) {//first
                 clientRedis.set('init_app', 1);
+                let resp = weatherTimeCityRepository.saveUpdateData();
+                res.send(resp);
+            } else if (isNotFirstVisit) { //FIX
                 let resp = weatherTimeCityRepository.saveUpdateData();
                 res.send(resp);
             } else {

@@ -7,6 +7,6 @@ router.get('/api/info/city/:city/', WeatherTimeCityController.getInfoCity);
 
 router.get('/api/info/cities', WeatherTimeCityController.getInfoCityAll);
 
-router.post('/save/citys', WeatherTimeCityController.save);
+router.post('/save/cities', WeatherTimeCityController.save);
 
 module.exports = router;

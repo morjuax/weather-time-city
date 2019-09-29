@@ -9,19 +9,21 @@ const socketIo = require('socket.io');
 const weatherTimeCityRepository = require('./Repositories/WeatherTimeCityRepository');
 
 const app = express();
-const server = http.createServer(app);
-const io = socketIo(server);
 
-const port = process.env.PORT || 5000;
+// Settings
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
 
 // Importing routes
 const weatherTimeCityRoutes = require('./Routes/weather_time_city');
 // Routes
 app.use(weatherTimeCityRoutes);
 
-// Settings
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+const server = http.createServer(app);
+const io = socketIo(server);
+
+const port = process.env.PORT || 5000;
+
 
 if (process.env.NODE_ENV === 'production') {
     // Serve any static files
@@ -44,7 +46,7 @@ io.on('connection', socket => {
         if (response.state) {
             data = await weatherTimeCityRepository.getInfoCityAll();
         }
-        socket.broadcast.emit('request_city', data)
+        socket.broadcast.emit('request_city', data);
     }, 15000); //1 min 60000
 
 });

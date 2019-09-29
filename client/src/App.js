@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import './App.css';
 import io from 'socket.io-client';
+import axios from 'axios';
 
 class App extends Component {
     state = {
@@ -19,6 +20,7 @@ class App extends Component {
     // citys = ['cl', 'ch', 'nz', 'au', 'uk', 'usa'];
 
     async componentDidMount() {
+
         await this.saveCities();
         // cl
         await this.getRenderCities();
@@ -53,14 +55,20 @@ class App extends Component {
     };
 
     saveCities = () => {
-        return fetch(`/save/citys`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        }).then((res) => {//console.log(res)
-        })
-            .catch(err => console.log(err));
+        let data = {};
+        if (!sessionStorage.isNotFirstVisit) {
+            sessionStorage.isNotFirstVisit = 1;
+            data = {isNotFirstVisit: 1};
+        } else {
+            sessionStorage.isNotFirstVisit = 0;
+            data = {isNotFirstVisit: 0};
+        }
+
+        return axios.post(`/save/cities`, data)
+            .then((res) => {
+                //console.log(res)
+            }).catch(err => console.log(err));
+
     };
 
     getSocket = () => {
@@ -138,6 +146,5 @@ class App extends Component {
         );
     }
 }
-
 
 export default App;
